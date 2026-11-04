@@ -29,11 +29,16 @@ def get_int_value_default(_config: dict, _key, default):
 
 # 获取当前时间对应的最大和最小步数
 def get_min_max_by_time(hour=None, minute=None):
-    min_step = int(os.environ.get('DAILY_TARGET_MIN', 19500))
-    max_step = int(os.environ.get('DAILY_TARGET_MAX', 20500))
-    if not 0 <= min_step <= max_step <= 100000:
-        raise ValueError('Invalid daily step range')
-    return min_step, max_step
+    # Beijing time; each range is the total for today, not an increment.
+    now = get_beijing_time()
+    hour = now.hour if hour is None else hour
+    minute = now.minute if minute is None else minute
+    minutes = hour * 60 + minute
+    if minutes < 18 * 60:
+        return 3200, 3800
+    if minutes < 21 * 60 + 30:
+        return 16000, 16999
+    return 22500, 23500
 
 
 def get_daily_step(user, min_step, max_step):
