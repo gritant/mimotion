@@ -29,14 +29,16 @@ def get_int_value_default(_config: dict, _key, default):
 
 # 获取当前时间对应的最大和最小步数
 def get_min_max_by_time(hour=None, minute=None):
-    if hour is None:
-        hour = time_bj.hour
-    if minute is None:
-        minute = time_bj.minute
-    time_rate = min((hour * 60 + minute) / (22 * 60), 1)
-    min_step = get_int_value_default(config, 'MIN_STEP', 18000)
-    max_step = get_int_value_default(config, 'MAX_STEP', 25000)
-    return int(time_rate * min_step), int(time_rate * max_step)
+    min_step = int(os.environ.get('DAILY_TARGET_MIN', 19500))
+    max_step = int(os.environ.get('DAILY_TARGET_MAX', 20500))
+    if not 0 <= min_step <= max_step <= 100000:
+        raise ValueError('Invalid daily step range')
+    return min_step, max_step
+
+
+def get_daily_step(user, min_step, max_step):
+    day = get_beijing_time().strftime('%Y-%m-%d')
+    return random.Random(f'{day}:{user}').randint(min_step, max_step)
 
 
 # 虚拟ip地址
@@ -188,7 +190,7 @@ class MiMotionRunner:
         if app_token is None:
             return "登陆失败！", False
 
-        step = str(random.randint(min_step, max_step))
+        step = str(get_daily_step(self.user, min_step, max_step))
         self.log_str += f"已设置为随机步数范围({min_step}~{max_step}) 随机值:{step}\n"
         
         user_token_info = user_tokens.get(self.user, {})
