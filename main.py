@@ -35,10 +35,10 @@ def get_min_max_by_time(hour=None, minute=None):
     minute = now.minute if minute is None else minute
     minutes = hour * 60 + minute
     if minutes < 18 * 60:
-        return 3200, 3800
+        return 10000, 15000
     if minutes < 21 * 60 + 30:
-        return 16000, 16999
-    return 22500, 23500
+        return 15000, 20000
+    return 20000, 30000
 
 
 def get_daily_step(user, min_step, max_step):
